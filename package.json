@@ -1,0 +1,16 @@
+{
+  "name": "net.narazaka.vrchat.breast-pb-adjuster",
+  "version": "1.0.1",
+  "displayName": "Breast PB Adjuster",
+  "description": "Breast PB Adjuster",
+  "author": {
+    "name": "Narazaka",
+    "url": "https://github.com/Narazaka"
+  },
+  "license": "Zlib",
+  "type": "tool",
+  "url" : "https://github.com/Narazaka/BreastPBAdjuster.git",
+  "vpmDependencies": {
+    "nadena.dev.modular-avatar": ">=1.7.5"
+  }
+}
