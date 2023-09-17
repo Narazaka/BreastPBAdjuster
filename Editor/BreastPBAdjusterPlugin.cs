@@ -28,8 +28,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
                 var breastPBAdjuster = ctx.AvatarRootObject.GetComponentInChildren<BreastPBAdjuster>();
                 if (breastPBAdjuster == null) return;
 
-                ProcessBreast(breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L"));
-                ProcessBreast(breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R"));
+                ProcessBreast(breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L/Parent"));
+                ProcessBreast(breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R/Parent"));
             });
         }
 
@@ -45,7 +45,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
             var s = avatarBreast.GetComponent<ScaleConstraint>();
             if (s == null) s = avatarBreast.gameObject.AddComponent<ScaleConstraint>();
             s.AddSource(new ConstraintSource { sourceTransform = targetBreast, weight = 1 });
-            s.scaleOffset = Vector3.one;
+            s.scaleOffset = new Vector3(avatarBreast.lossyScale.x / targetBreast.lossyScale.x, avatarBreast.lossyScale.y / targetBreast.lossyScale.y, avatarBreast.lossyScale.z / targetBreast.lossyScale.z);
             s.constraintActive = true;
         }
     }

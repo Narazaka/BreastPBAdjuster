@@ -28,16 +28,10 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BreastPBScale
+  m_Name: BreastPBScaleL
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: BreastPBAdjuster_Breast_L_Squish
-    m_Type: 1
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
-  - m_Name: BreastPBAdjuster_Breast_R_Squish
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
