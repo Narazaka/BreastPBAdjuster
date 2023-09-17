@@ -128,12 +128,14 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             [Serializable]
             public class BreastKeyFrameBoneSet
             {
+#if UNITY_EDITOR
                 public static void Set(SerializedProperty self, BoneSet boneSet)
                 {
                     TransformMemo.Set(self.FindPropertyRelative(nameof(Start)), boneSet.Start);
                     TransformMemo.Set(self.FindPropertyRelative(nameof(Middle)), boneSet.Middle);
                     TransformMemo.Set(self.FindPropertyRelative(nameof(End)), boneSet.End);
                 }
+#endif
                 public TransformMemo Start = new TransformMemo();
                 public TransformMemo Middle = new TransformMemo();
                 public TransformMemo End = new TransformMemo();
@@ -198,6 +200,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 MoveEndPosition(End.position, baseBoneLength);
             }
 
+#if UNITY_EDITOR
             public void DrawGizmos()
             {
                 Handles.SphereHandleCap(0, Start.position, Quaternion.identity, 0.005f, EventType.Repaint);
@@ -207,6 +210,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 Handles.Label(End.position, "End");
                 Handles.DrawLine(Middle.position, End.position);
             }
+#endif
         }
 
 #if UNITY_EDITOR
