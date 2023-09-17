@@ -458,8 +458,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 ManipulateSquish(Bones.L, CurrentKeyFrame.L);
                 ManipulateSquish(Bones.R, CurrentKeyFrame.R);
-                ManipulateSquishScale(Bones.L, BreastPBAdjuster.BreastL);
-                ManipulateSquishScale(Bones.R, BreastPBAdjuster.BreastR);
+                ManipulateSquishScale(Bones.L, CurrentKeyFrame.BreastL, BreastPBAdjuster.BreastL);
+                ManipulateSquishScale(Bones.R, CurrentKeyFrame.BreastR, BreastPBAdjuster.BreastR);
             }
 
             void OnChangeEditSquish()
@@ -532,12 +532,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 }
             }
 
-            void ManipulateSquishScale(BoneSet main, Transform breast)
+            void ManipulateSquishScale(BoneSet main, TransformMemo tr, Transform breast)
             {
                 using (var check = new EditorGUI.ChangeCheckScope())
                 {
                     var scale = Handles.ScaleHandle(BreastPBAdjuster.SquishScale, main.Start.position, main.Start.rotation, 0.03f);
-                    breast.localScale = scale;
+                    breast.localScale = Vector3.Scale(tr.Scale, scale);
                     if (check.changed)
                     {
                         serializedObject.FindProperty(nameof(SquishScale)).vector3Value = scale;
