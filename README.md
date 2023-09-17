@@ -2,7 +2,7 @@
 
 Breast PB Adjuster
 
-VRM作成時とかに便利。
+WIP
 
 ## インストール
 
