@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDK3.Dynamics.PhysBone.Components;
 using VRC.SDKBase;
-using UnityEditor.Hardware;
 using System;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,7 +13,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
     [AddComponentMenu(nameof(BreastPBAdjuster))]
     public class BreastPBAdjuster : MonoBehaviour, IEditorOnly
     {
-#if UNITY_EDITOR
         [SerializeField]
         public Transform BreastL;
         [SerializeField]
@@ -45,6 +43,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         [Serializable]
         public class TransformMemo
         {
+#if UNITY_EDITOR
             public static void Set(SerializedProperty memo, Transform transform)
             {
                 if (transform == null)
@@ -60,6 +59,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     memo.FindPropertyRelative(nameof(Scale)).vector3Value = transform.localScale;
                 }
             }
+#endif
 
             public Vector3 Position;
             public Quaternion Rotation;
@@ -115,6 +115,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         {
         }
 
+#if UNITY_EDITOR
         [CustomEditor(typeof(BreastPBAdjuster))]
         public class BreastPBAdjusterEditor : Editor
         {
