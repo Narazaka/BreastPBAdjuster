@@ -410,6 +410,14 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 serializedObject.ApplyModifiedProperties();
             }
 
+            private void OnDisable()
+            {
+                if (EditSquish)
+                {
+                    EditSquish = false;
+                }
+            }
+
             void NormalEdit()
             {
                 if (BreastPBAdjuster.BreastL != null)
