@@ -21,7 +21,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         [SerializeField]
         float Squish = 0.1f;
         [SerializeField]
-        Vector3 SquishScale = Vector3.one;
+        public Vector3 SquishScale = Vector3.one;
         [SerializeField]
         bool ChangeBreastSize = true;
         [SerializeField]
@@ -305,10 +305,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 {
                     EditSquish = !EditSquish;
                 }
-                if (GUILayout.Button("make anim"))
-                {
-                    MakeAnim();
-                }
                 EditorGUILayout.PropertyField(changeBreastSize);
                 if (KeyFramesList == null)
                 {
@@ -530,35 +526,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                         serializedObject.FindProperty(nameof(SquishScale)).vector3Value = scale;
                     }
                 }
-            }
-
-            static string AnimPath = "Packages/net.narazaka.vrchat.breast-pb-adjuster/BreastPBScale.anim";
-
-            void MakeAnim()
-            {
-                var anim = AssetDatabase.LoadAssetAtPath<AnimationClip>(AnimPath);
-                anim.ClearCurves();
-                anim.SetCurve("", typeof(Transform), "localScale.x", new AnimationCurve
-                {
-                    keys = new Keyframe[] {
-                        new Keyframe { time = 0, value = 1f },
-                        new Keyframe { time = 1, value = BreastPBAdjuster.SquishScale.x },
-                    }
-                });
-                anim.SetCurve("", typeof(Transform), "localScale.y", new AnimationCurve
-                {
-                    keys = new Keyframe[] {
-                        new Keyframe { time = 0, value = 1f },
-                        new Keyframe { time = 1, value = BreastPBAdjuster.SquishScale.y },
-                    }
-                });
-                anim.SetCurve("", typeof(Transform), "localScale.z", new AnimationCurve
-                {
-                    keys = new Keyframe[] {
-                        new Keyframe { time = 0, value = 1f },
-                        new Keyframe { time = 1, value = BreastPBAdjuster.SquishScale.z },
-                    }
-                });
             }
         }
 #endif

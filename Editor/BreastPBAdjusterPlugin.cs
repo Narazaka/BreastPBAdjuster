@@ -4,8 +4,10 @@ using UnityEngine;
 using nadena.dev.ndmf;
 using nadena.dev.ndmf.fluent;
 using UnityEngine.Animations;
+using UnityEditor.Animations;
 using VRC.SDK3.Dynamics.PhysBone.Components;
 using System.Linq;
+using nadena.dev.modular_avatar.core;
 
 [assembly: ExportsPlugin(typeof(Narazaka.VRChat.BreastPBAdjuster.Editor.BreastPBAdjusterPlugin))]
 
@@ -30,12 +32,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
                 var breastPBAdjuster = ctx.AvatarRootObject.GetComponentInChildren<BreastPBAdjuster>();
                 if (breastPBAdjuster == null) return;
 
-                ProcessBreast(breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
-                ProcessBreast(breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
+                ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
+                ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
             });
         }
 
-        void ProcessBreast(Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
+        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
         {
             var r = avatarBreast.GetComponent<RotationConstraint>();
             if (r == null) r = avatarBreast.gameObject.AddComponent<RotationConstraint>();
@@ -56,6 +58,56 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
                 pb.colliders = pb.colliders.Where(c => c != null).Union(avatarPb.colliders).ToList();
                 Object.DestroyImmediate(avatarPb);
             }
+
+            var clip = MakeAnimation(breastPBAdjuster.SquishScale);
+            var controller = MakeAnimator(pb.parameter, clip);
+            var mergeAnimator = targetBreast.gameObject.AddComponent<ModularAvatarMergeAnimator>();
+            mergeAnimator.animator = controller;
+            mergeAnimator.layerType = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor.AnimLayerType.FX;
+            mergeAnimator.pathMode = MergeAnimatorPathMode.Relative;
+            mergeAnimator.matchAvatarWriteDefaults = true;
+        }
+
+        AnimatorController MakeAnimator(string parameterPrefix, AnimationClip clip)
+        {
+            var parameterName = $"{parameterPrefix}_Squish";
+            var animator = new AnimatorController();
+            animator.AddParameter(new AnimatorControllerParameter { name = parameterName, type = AnimatorControllerParameterType.Float, defaultFloat = 0f });
+            animator.AddLayer(parameterName);
+            var layer = animator.layers[0];
+            var state = layer.stateMachine.AddState(parameterName);
+            state.timeParameter = parameterName;
+            state.timeParameterActive = true;
+            state.writeDefaultValues = false;
+            state.motion = clip;
+            return animator;
+        }
+
+        AnimationClip MakeAnimation(Vector3 squishScale)
+        {
+            var anim = new AnimationClip();
+            anim.SetCurve("", typeof(Transform), "localScale.x", new AnimationCurve
+            {
+                keys = new Keyframe[] {
+                        new Keyframe { time = 0, value = 1f },
+                        new Keyframe { time = 1, value = squishScale.x },
+                    }
+            });
+            anim.SetCurve("", typeof(Transform), "localScale.y", new AnimationCurve
+            {
+                keys = new Keyframe[] {
+                        new Keyframe { time = 0, value = 1f },
+                        new Keyframe { time = 1, value = squishScale.y },
+                    }
+            });
+            anim.SetCurve("", typeof(Transform), "localScale.z", new AnimationCurve
+            {
+                keys = new Keyframe[] {
+                        new Keyframe { time = 0, value = 1f },
+                        new Keyframe { time = 1, value = squishScale.z },
+                    }
+            });
+            return anim;
         }
     }
 }
