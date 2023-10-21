@@ -735,43 +735,7 @@ MonoBehaviour:
   BreastR: {fileID: 0}
   Squish: 0.16848622
   SquishScale: {x: 1.1623303, y: 0.9153758, z: 1.0582775}
-  ChangeBreastSize: 1
-  KeyFrames:
-  - IsDefault: 1
-    BreastL:
-      Position: {x: -0.033462644, y: 0.06789823, z: 0.01491702}
-      Rotation: {x: -0.09830099, y: 0.58904606, z: 0.7878255, w: 0.15064083}
-      Scale: {x: 1.24, y: 1.08, z: 1.24}
-    BreastR:
-      Position: {x: 0.033462644, y: 0.06789823, z: 0.01491702}
-      Rotation: {x: -0.09830099, y: -0.58904606, z: -0.7878255, w: 0.15064083}
-      Scale: {x: 1.24, y: 1.08, z: 1.24}
-    L:
-      Base:
-        Position: {x: -0.033462644, y: 0.06789823, z: 0.01491702}
-        Rotation: {x: 0.90962696, y: -0.022362221, z: 0.16383709, w: 0.3810986}
-        Scale: {x: 1.24, y: 1.08, z: 1.24}
-      Start:
-        Position: {x: 0, y: 0, z: 0}
-        Rotation: {x: -0, y: -0, z: -0.0000000037252907, w: 1}
-        Scale: {x: 1, y: 1, z: 1}
-      End:
-        Position: {x: 8.6087876e-10, y: 0.08606772, z: -0.0000000030042666}
-        Rotation: {x: -0, y: -0, z: -0, w: 1}
-        Scale: {x: 1, y: 1, z: 1}
-    R:
-      Base:
-        Position: {x: 0.033462644, y: 0.06789823, z: 0.01491702}
-        Rotation: {x: 0.90962696, y: 0.022362223, z: -0.1638371, w: 0.38109854}
-        Scale: {x: 1.24, y: 1.08, z: 1.24}
-      Start:
-        Position: {x: 0, y: 0, z: 0}
-        Rotation: {x: -0, y: -0, z: 0.0000000055879363, w: 1}
-        Scale: {x: 1, y: 1, z: 1}
-      End:
-        Position: {x: 0.000000005468281, y: 0.086067684, z: 0.0000000120170665}
-        Rotation: {x: -0, y: -0, z: -0, w: 1}
-        Scale: {x: 1, y: 1, z: 1}
+  KeyFrames: []
 --- !u!114 &2060739405296368111
 MonoBehaviour:
   m_ObjectHideFlags: 0
