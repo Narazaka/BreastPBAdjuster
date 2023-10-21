@@ -11,7 +11,6 @@
   "type": "tool",
   "url" : "https://github.com/Narazaka/BreastPBAdjuster.git",
   "vpmDependencies": {
-    "nadena.dev.modular-avatar": ">=1.7.5",
-    "nadena.dev.ndmf": "0.2.0"
+    "nadena.dev.modular-avatar": ">=1.8.0"
   }
 }
