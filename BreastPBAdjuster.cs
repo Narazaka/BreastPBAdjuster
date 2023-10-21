@@ -418,16 +418,16 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 if (BreastPBAdjuster.BreastL != null)
                 {
-                    Bones.Breast_L_base.localPosition = CurrentKeyFrame.BreastL.Position;
-                    Bones.Breast_L_base.localScale = CurrentKeyFrame.BreastL.Scale;
+                    Bones.Breast_L_base.localPosition = BreastPBAdjuster.BreastL.localPosition;
+                    Bones.Breast_L_base.localScale = BreastPBAdjuster.BreastL.localScale;
                     ManipulatePosition(Bones.L, Bones.R);
                     ManipulatePB(Bones.L, Bones.R);
                     Bones.L.DrawGizmos();
                 }
                 if (BreastPBAdjuster.BreastR != null)
                 {
-                    Bones.Breast_R_base.localPosition = CurrentKeyFrame.BreastR.Position;
-                    Bones.Breast_R_base.localScale = CurrentKeyFrame.BreastR.Scale;
+                    Bones.Breast_R_base.localPosition = BreastPBAdjuster.BreastR.localPosition;
+                    Bones.Breast_R_base.localScale = BreastPBAdjuster.BreastR.localScale;
                     ManipulatePosition(Bones.R, Bones.L);
                     ManipulatePB(Bones.R, Bones.L);
                     Bones.R.DrawGizmos();
