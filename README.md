@@ -12,7 +12,11 @@ Breast PB Adjuster
 
 ## 使い方
 
-「Tools」→「Breast PB Adjuster」をクリックします。
+「Breast PB Adjuster」のprefabをアバターに入れてよしなにする。
+
+PBとかはprefabにあるやつはてきとうなのでアバターからパラメーターうつしてくるの推奨
+
+結合時にアバター側の元のPBを無効にするのでアバターが屈曲ボーンの場合は屈曲ボーン用処置が必要
 
 ## License
 
