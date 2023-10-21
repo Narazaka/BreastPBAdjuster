@@ -553,7 +553,7 @@ MonoBehaviour:
     allowOthers: 1
   snapToHand: 0
   grabMovement: 0.5
-  maxStretch: 1
+  maxStretch: 0
   maxStretchCurve:
     serializedVersion: 2
     m_Curve: []
