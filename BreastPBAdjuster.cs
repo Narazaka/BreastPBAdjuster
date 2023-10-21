@@ -185,6 +185,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 var startPosition = Base.position;
                 var vec = endPosition - startPosition;
                 var rot = Quaternion.FromToRotation(Vector3.up, vec);
+                Undo.RecordObjects(new UnityEngine.Object[] { Base, Start, End }, "Move Breast PB");
                 Base.position = startPosition;
                 Base.rotation = rot;
                 Start.position = startPosition;
@@ -492,6 +493,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 var rate = radiusStart / radiusEnd;
                 var curve = new AnimationCurve(new Keyframe { time = 0f, value = rate }, new Keyframe { time = 1, value = 1 });
+                Undo.RecordObjects(new UnityEngine.Object[] { Bones.L.PB, Bones.R.PB }, $"Change PB Radius to {radiusStart} .. {radiusEnd}");
                 Bones.L.PB.radius = radiusEnd;
                 Bones.L.PB.radiusCurve = curve;
                 Bones.R.PB.radius = radiusEnd;
