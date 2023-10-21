@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDK3.Dynamics.PhysBone.Components;
@@ -351,7 +351,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                         rect.y += rect.height;
                     };
                 }
-                KeyFramesList.DoLayoutList();
+                // KeyFramesList.DoLayoutList();
 
                 var nowL = breastL.objectReferenceValue;
                 var nowR = breastR.objectReferenceValue;
