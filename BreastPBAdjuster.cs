@@ -183,7 +183,9 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 var startPosition = Base.position;
                 var vec = endPosition - startPosition;
                 var rot = Quaternion.FromToRotation(Vector3.up, vec);
+#if UNITY_EDITOR
                 Undo.RecordObjects(new UnityEngine.Object[] { Base, Start, End }, "Move Breast PB");
+#endif
                 Base.position = startPosition;
                 Base.rotation = rot;
                 Start.position = startPosition;
