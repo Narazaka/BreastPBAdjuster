@@ -19,6 +19,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         [SerializeField]
         public Transform BreastR;
         [SerializeField]
+        float BaseBoneLength = 0.1f;
+        [SerializeField]
         float Squish = 0.1f;
         [SerializeField]
         Vector3 SquishScale = Vector3.one;
@@ -130,10 +132,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 public static void Set(SerializedProperty self, BoneSet boneSet)
                 {
                     TransformMemo.Set(self.FindPropertyRelative(nameof(Start)), boneSet.Start);
+                    TransformMemo.Set(self.FindPropertyRelative(nameof(Middle)), boneSet.Middle);
                     TransformMemo.Set(self.FindPropertyRelative(nameof(End)), boneSet.End);
                 }
 #endif
                 public TransformMemo Start = new TransformMemo();
+                public TransformMemo Middle = new TransformMemo();
                 public TransformMemo End = new TransformMemo();
 
                 /*
@@ -148,6 +152,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 public void Apply(BoneSet boneSet)
                 {
                     Start.Apply(boneSet.Start);
+                    Middle.Apply(boneSet.Middle);
                     End.Apply(boneSet.End);
                 }
             }
@@ -164,35 +169,46 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         public class BoneSet
         {
             public readonly Transform Start;
+            public readonly Transform Middle;
             public readonly Transform End;
             public readonly VRCPhysBone PB;
-            public BoneSet(Transform baseBone, Transform endBone)
+            public BoneSet(Transform baseBone, Transform middleBone, Transform endBone)
             {
                 Start = baseBone;
+                Middle = middleBone;
                 End = endBone;
                 PB = Start.GetComponent<VRCPhysBone>();
             }
 
-            public bool Valid { get => Start != null && End != null; }
+            public bool Valid { get => Start != null && Middle != null && End != null; }
 
-            public void MoveEndPosition(Vector3 endPosition)
+            public void MoveEndPosition(Vector3 endPosition, float baseBoneLength)
             {
                 var startPosition = Start.position;
                 var vec = endPosition - startPosition;
                 var rot = Quaternion.FromToRotation(Vector3.up, vec);
                 Start.position = startPosition;
                 Start.rotation = rot;
+                Middle.position = startPosition + vec * baseBoneLength;
+                Middle.rotation = rot;
                 End.position = endPosition;
                 End.rotation = rot;
+            }
+
+            public void ChangeBaseBoneLength(float baseBoneLength)
+            {
+                MoveEndPosition(End.position, baseBoneLength);
             }
 
 #if UNITY_EDITOR
             public void DrawGizmos()
             {
                 Handles.SphereHandleCap(0, Start.position, Quaternion.identity, 0.005f, EventType.Repaint);
+                Handles.SphereHandleCap(0, Middle.position, Quaternion.identity, 0.005f, EventType.Repaint);
                 Handles.Label(Start.position, "Start");
+                Handles.Label(Middle.position, "Middle");
                 Handles.Label(End.position, "End");
-                Handles.DrawLine(Start.position, End.position);
+                Handles.DrawLine(Middle.position, End.position);
             }
 #endif
         }
@@ -212,8 +228,10 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 enum Bone
                 {
                     Breast_L_base,
+                    Breast_L,
                     Breast_L_end,
                     Breast_R_base,
+                    Breast_R,
                     Breast_R_end,
                 }
 
@@ -228,13 +246,15 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 public bool Valid { get => Parent != null; }
 
                 public Transform Breast_L { get => Bones.TryGetValue(Bone.Breast_L_base, out var value) && value != null ? value : Parent.Find("Breast_L"); }
-                public Transform Breast_L_end { get => Bones.TryGetValue(Bone.Breast_L_end, out var value) && value != null ? value : Parent.Find("Breast_L/Breast_L_end"); }
+                public Transform Breast_L_middle { get => Bones.TryGetValue(Bone.Breast_L, out var value) && value != null ? value : Parent.Find("Breast_L/Breast_L_middle"); }
+                public Transform Breast_L_end { get => Bones.TryGetValue(Bone.Breast_L_end, out var value) && value != null ? value : Parent.Find("Breast_L/Breast_L_middle/Breast_L_end"); }
 
                 public Transform Breast_R { get => Bones.TryGetValue(Bone.Breast_R_base, out var value) && value != null ? value : Parent.Find("Breast_R"); }
-                public Transform Breast_R_end { get => Bones.TryGetValue(Bone.Breast_R_end, out var value) && value != null ? value : Parent.Find("Breast_R/Breast_R_end"); }
-                public BoneSet L { get => _L == null || !_L.Valid ? new BoneSet(Breast_L, Breast_L_end) : _L; }
+                public Transform Breast_R_middle { get => Bones.TryGetValue(Bone.Breast_R, out var value) && value != null ? value : Parent.Find("Breast_R/Breast_R_middle"); }
+                public Transform Breast_R_end { get => Bones.TryGetValue(Bone.Breast_R_end, out var value) && value != null ? value : Parent.Find("Breast_R/Breast_R_middle/Breast_R_end"); }
+                public BoneSet L { get => _L == null || !_L.Valid ? new BoneSet(Breast_L, Breast_L_middle, Breast_L_end) : _L; }
                 BoneSet _L;
-                public BoneSet R { get => _R == null || !_R.Valid ? new BoneSet(Breast_R, Breast_R_end) : _R; }
+                public BoneSet R { get => _R == null || !_R.Valid ? new BoneSet(Breast_R, Breast_R_middle, Breast_R_end) : _R; }
                 BoneSet _R;
             }
 
@@ -275,15 +295,18 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 var breastL = serializedObject.FindProperty(nameof(BreastL));
                 var breastR = serializedObject.FindProperty(nameof(BreastR));
                 var keyFrames = serializedObject.FindProperty(nameof(KeyFrames));
+                var baseBoneLength = serializedObject.FindProperty(nameof(BaseBoneLength));
                 var squish = serializedObject.FindProperty(nameof(Squish));
                 var squishScale = serializedObject.FindProperty(nameof(SquishScale));
                 var changeBreastSize = serializedObject.FindProperty(nameof(ChangeBreastSize));
 
                 var prevL = breastL.objectReferenceValue;
                 var prevR = breastR.objectReferenceValue;
+                var prevBaseBoneLength = baseBoneLength.floatValue;
 
                 EditorGUILayout.PropertyField(breastL);
                 EditorGUILayout.PropertyField(breastR);
+                EditorGUILayout.PropertyField(baseBoneLength);
                 EditorGUILayout.PropertyField(squish);
                 Bones.L.PB.maxSquish = squish.floatValue;
                 Bones.R.PB.maxSquish = squish.floatValue;
@@ -349,6 +372,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
 
                 var nowL = breastL.objectReferenceValue;
                 var nowR = breastR.objectReferenceValue;
+                var nowBaseBoneLength = baseBoneLength.floatValue;
 
                 if (prevL != nowL)
                 {
@@ -357,6 +381,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 if (prevR != nowR)
                 {
                     TransformMemo.Set(GetDefaultKeyFrameProperty().FindPropertyRelative(nameof(BreastR)), breastR.objectReferenceValue as Transform);
+                }
+                if (prevBaseBoneLength != nowBaseBoneLength)
+                {
+                    Bones.L.ChangeBaseBoneLength(nowBaseBoneLength);
+                    Bones.R.ChangeBaseBoneLength(nowBaseBoneLength);
+                    SetPB(Bones.L.PB.CalcRadius(0f), Bones.L.PB.radius, nowBaseBoneLength);
                 }
                 serializedObject.ApplyModifiedProperties();
             }
@@ -458,10 +488,10 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     var endPosition = Handles.PositionHandle(main.End.position, Quaternion.identity);
                     if (check.changed)
                     {
-                        main.MoveEndPosition(endPosition);
+                        main.MoveEndPosition(endPosition, BreastPBAdjuster.BaseBoneLength);
                         var center = BreastPBAdjuster.transform.position;
                         endPosition = Vector3.Reflect(endPosition - center, Vector3.left) + center;
-                        sub.MoveEndPosition(endPosition);
+                        sub.MoveEndPosition(endPosition, BreastPBAdjuster.BaseBoneLength);
                     }
                 }
             }
@@ -476,15 +506,15 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     var radiusStart = Handles.RadiusHandle(Quaternion.identity, main.Start.position, main.PB.CalcRadius(0f) * avgScale) / avgScale;
                     if (check.changed)
                     {
-                        SetPB(radiusStart, radiusEnd);
+                        SetPB(radiusStart, radiusEnd, BreastPBAdjuster.BaseBoneLength);
                     }
                 }
             }
 
-            void SetPB(float radiusStart, float radiusEnd)
+            void SetPB(float radiusStart, float radiusEnd, float baseBoneLength)
             {
                 var rate = radiusStart / radiusEnd;
-                var curve = new AnimationCurve(new Keyframe { time = 0f, value = rate }, new Keyframe { time = 1, value = 1 });
+                var curve = new AnimationCurve(new Keyframe { time = 0f, value = rate }, new Keyframe { time = 0.5f, value = baseBoneLength + rate * (1 - baseBoneLength) }, new Keyframe { time = 1, value = 1 });
                 Bones.L.PB.radius = radiusEnd;
                 Bones.L.PB.radiusCurve = curve;
                 Bones.R.PB.radius = radiusEnd;
