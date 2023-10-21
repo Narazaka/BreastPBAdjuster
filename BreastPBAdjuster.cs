@@ -439,10 +439,10 @@ namespace Narazaka.VRChat.BreastPBAdjuster
 
             void SquishEdit()
             {
-                ManipulateSquish(Bones.L, CurrentKeyFrame.L);
-                ManipulateSquish(Bones.R, CurrentKeyFrame.R);
-                ManipulateSquishScale(Bones.L, CurrentKeyFrame.BreastL, BreastPBAdjuster.BreastL);
-                ManipulateSquishScale(Bones.R, CurrentKeyFrame.BreastR, BreastPBAdjuster.BreastR);
+                ManipulateSquish(Bones.L);
+                ManipulateSquish(Bones.R);
+                ManipulateSquishScale(Bones.L, BreastPBAdjuster.BreastL);
+                ManipulateSquishScale(Bones.R, BreastPBAdjuster.BreastR);
             }
 
             void OnChangeEditSquish()
@@ -453,10 +453,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 }
                 else
                 {
-                    CurrentKeyFrame.BreastL.Apply(BreastPBAdjuster.BreastL);
-                    CurrentKeyFrame.BreastR.Apply(BreastPBAdjuster.BreastR);
-                    CurrentKeyFrame.L.Apply(Bones.L);
-                    CurrentKeyFrame.R.Apply(Bones.R);
+                    BreastPBAdjuster.BreastL.localScale = Bones.Breast_L_base.localScale;
+                    BreastPBAdjuster.BreastR.localScale = Bones.Breast_R_base.localScale;
                 }
             }
 
@@ -500,14 +498,16 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 Bones.R.PB.radiusCurve = curve;
             }
 
-            void ManipulateSquish(BoneSet main, BreastKeyFrame.BreastKeyFrameBoneSet mainKeyFrame)
+            void ManipulateSquish(BoneSet main)
             {
                 using (var check = new EditorGUI.ChangeCheckScope())
                 {
-                    mainKeyFrame.Apply(main); // いったん計測のため元の長さに
                     var diff = main.End.position - main.Base.position;
-                    var pos = Handles.Slider(main.Base.position * BreastPBAdjuster.Squish + main.End.position * (1 - BreastPBAdjuster.Squish), diff);
-                    main.End.position -= diff * BreastPBAdjuster.Squish; // PB末端適用
+                    var pos = Handles.Slider(main.Base.position * BreastPBAdjuster.Squish + main.End.position * (1 - BreastPBAdjuster.Squish), -diff);
+                    Handles.DrawLine(main.Base.position, pos);
+                    Handles.color = Color.red;
+                    Handles.DrawLine(main.End.position, pos);
+                    Handles.color = Color.white;
                     if (check.changed)
                     {
                         serializedObject.FindProperty(nameof(Squish)).floatValue = Mathf.Clamp01(1 - (pos - main.Base.position).magnitude / diff.magnitude);
@@ -515,12 +515,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 }
             }
 
-            void ManipulateSquishScale(BoneSet main, TransformMemo tr, Transform breast)
+            void ManipulateSquishScale(BoneSet main, Transform breast)
             {
                 using (var check = new EditorGUI.ChangeCheckScope())
                 {
                     var scale = Handles.ScaleHandle(BreastPBAdjuster.SquishScale, main.Base.position, main.Base.rotation, 0.03f);
-                    breast.localScale = Vector3.Scale(tr.Scale, scale);
+                    breast.localScale = Vector3.Scale(main.Base.localScale, scale);
                     if (check.changed)
                     {
                         serializedObject.FindProperty(nameof(SquishScale)).vector3Value = scale;
