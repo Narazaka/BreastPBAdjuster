@@ -23,8 +23,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         [SerializeField]
         public Vector3 SquishScale = Vector3.one;
         [SerializeField]
-        bool ChangeBreastSize = true;
-        [SerializeField]
         List<BreastKeyFrame> KeyFrames = new List<BreastKeyFrame>();
         BreastKeyFrame DefaultKeyFrame { get
             {
@@ -291,7 +289,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 var keyFrames = serializedObject.FindProperty(nameof(KeyFrames));
                 var squish = serializedObject.FindProperty(nameof(Squish));
                 var squishScale = serializedObject.FindProperty(nameof(SquishScale));
-                var changeBreastSize = serializedObject.FindProperty(nameof(ChangeBreastSize));
 
                 var prevL = breastL.objectReferenceValue;
                 var prevR = breastR.objectReferenceValue;
@@ -306,7 +303,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 {
                     EditSquish = !EditSquish;
                 }
-                EditorGUILayout.PropertyField(changeBreastSize);
                 if (KeyFramesList == null)
                 {
                     KeyFramesList = new UnityEditorInternal.ReorderableList(serializedObject, keyFrames);
