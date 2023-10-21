@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDK3.Dynamics.PhysBone.Components;
@@ -432,10 +432,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     ManipulatePB(Bones.R, Bones.L);
                     Bones.R.DrawGizmos();
                 }
-
-                var currentKeyFrameProp = CurrentKeyFrameProperty;
-                BreastKeyFrame.BreastKeyFrameBoneSet.Set(currentKeyFrameProp.FindPropertyRelative("L"), Bones.L);
-                BreastKeyFrame.BreastKeyFrameBoneSet.Set(currentKeyFrameProp.FindPropertyRelative("R"), Bones.R);
             }
 
             void SquishEdit()
