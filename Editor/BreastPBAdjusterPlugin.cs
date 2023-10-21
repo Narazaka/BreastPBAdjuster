@@ -30,8 +30,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
                 var breastPBAdjuster = ctx.AvatarRootObject.GetComponentInChildren<BreastPBAdjuster>();
                 if (breastPBAdjuster == null) return;
 
-                ProcessBreast(breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L").GetComponent<VRCPhysBone>());
-                ProcessBreast(breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R").GetComponent<VRCPhysBone>());
+                ProcessBreast(breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
+                ProcessBreast(breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
             });
         }
 
