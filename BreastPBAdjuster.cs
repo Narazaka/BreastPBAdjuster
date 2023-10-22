@@ -195,7 +195,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 Handles.SphereHandleCap(0, Base.position, Quaternion.identity, 0.005f, EventType.Repaint);
                 Handles.SphereHandleCap(0, Start.position, Quaternion.identity, 0.005f, EventType.Repaint);
-                Handles.Label(Base.position, "Base");
                 Handles.Label(Start.position, "Start");
                 Handles.Label(End.position, "End");
                 Handles.DrawLine(Start.position, End.position);
