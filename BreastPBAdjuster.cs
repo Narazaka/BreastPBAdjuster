@@ -182,16 +182,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 var startPosition = Base.position;
                 var vec = endPosition - startPosition;
-                var rot = Quaternion.FromToRotation(Vector3.up, vec);
 #if UNITY_EDITOR
                 Undo.RecordObjects(new UnityEngine.Object[] { Base, Start, End }, "Move Breast PB");
 #endif
                 Base.position = startPosition;
-                Base.rotation = rot;
                 Start.position = startPosition;
-                Start.rotation = rot;
                 End.position = endPosition;
-                End.rotation = rot;
             }
 
 #if UNITY_EDITOR
@@ -254,6 +250,11 @@ namespace Narazaka.VRChat.BreastPBAdjuster
 
             BoneCache Bones { get => _Bones == null || !_Bones.Valid ? (_Bones = new BoneCache(BreastPBAdjuster.transform)) : _Bones; }
             BoneCache _Bones;
+
+            Transform Breast_L_second { get => _Breast_L_second == null ? (_Breast_L_second = BreastPBAdjuster.BreastL.GetChild(0)) : _Breast_L_second; }
+            Transform _Breast_L_second;
+            Transform Breast_R_second { get => _Breast_R_second == null ? (_Breast_R_second = BreastPBAdjuster.BreastR.GetChild(0)) : _Breast_R_second; }
+            Transform _Breast_R_second;
 
             bool EditSquish
             {
@@ -426,6 +427,9 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 {
                     Bones.Breast_L_base.localPosition = BreastPBAdjuster.BreastL.localPosition;
                     Bones.Breast_L_base.localScale = BreastPBAdjuster.BreastL.localScale;
+                    Bones.Breast_L_base.localRotation = BreastPBAdjuster.BreastL.localRotation;
+                    Bones.Breast_L.localRotation = Quaternion.identity;
+                    Bones.Breast_L_end.localRotation = Breast_L_second ? Breast_L_second.localRotation : Quaternion.identity;
                     ManipulatePosition(Bones.L, Bones.R);
                     ManipulatePB(Bones.L, Bones.R);
                     Bones.L.DrawGizmos();
@@ -434,6 +438,9 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 {
                     Bones.Breast_R_base.localPosition = BreastPBAdjuster.BreastR.localPosition;
                     Bones.Breast_R_base.localScale = BreastPBAdjuster.BreastR.localScale;
+                    Bones.Breast_R_base.localRotation = BreastPBAdjuster.BreastR.localRotation;
+                    Bones.Breast_R.localRotation = Quaternion.identity;
+                    Bones.Breast_R_end.localRotation = Breast_R_second ? Breast_R_second.localRotation : Quaternion.identity;
                     ManipulatePosition(Bones.R, Bones.L);
                     ManipulatePB(Bones.R, Bones.L);
                     Bones.R.DrawGizmos();
