@@ -1,9 +1,9 @@
 {
     "name": "BreastPBAdjuster.Editor",
     "references": [
-        "GUID:3dc06f5005f1cac4a9c978959106d0bb",
-        "GUID:fc900867c0f47cd49b6e2ae4ef907300",
-        "GUID:62ced99b048af7f4d8dfe4bed8373d76"
+        "BreastPBAdjuster",
+        "nadena.dev.modular-avatar.core",
+        "nadena.dev.ndmf"
     ],
     "includePlatforms": [
         "Editor"
