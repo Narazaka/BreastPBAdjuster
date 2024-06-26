@@ -32,6 +32,11 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
                 var breastPBAdjuster = ctx.AvatarRootObject.GetComponentInChildren<BreastPBAdjuster>();
                 if (breastPBAdjuster == null) return;
 
+                /*
+                var chest = ctx.AvatarRootObject.GetComponent<Animator>().GetBoneTransform(HumanBodyBones.Chest);
+                breastPBAdjuster.transform.SetParent(chest, true);
+                */
+
                 ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
                 ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
                 Object.DestroyImmediate(breastPBAdjuster);
@@ -40,18 +45,37 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
 
         void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
         {
-            var r = avatarBreast.GetComponent<RotationConstraint>();
-            if (r == null) r = avatarBreast.gameObject.AddComponent<RotationConstraint>();
-            r.AddSource(new ConstraintSource { sourceTransform = targetBreast, weight = 1 });
-            var rotationDelta = Quaternion.Inverse(targetBreast.rotation) * avatarBreast.rotation;
-            r.rotationOffset = rotationDelta.eulerAngles;
-            r.constraintActive = true;
+            var inverseScale = new GameObject("InverseScale");
+            inverseScale.transform.SetParent(avatarBreast, false);
+            inverseScale.transform.localPosition = Vector3.zero;
+            inverseScale.transform.SetParent(targetBreast, true);
+            inverseScale.transform.localRotation = Quaternion.identity;
+            inverseScale.transform.localScale = new Vector3(1 / avatarBreast.localScale.x, 1 / avatarBreast.localScale.y, 1 / avatarBreast.localScale.z);
+            var inverseRotation = new GameObject("InverseRotation");
+            inverseRotation.transform.SetParent(inverseScale.transform, false);
+            inverseRotation.transform.localPosition = Vector3.zero;
+            inverseRotation.transform.localRotation = Quaternion.Inverse(avatarBreast.localRotation);
+            inverseRotation.transform.localScale = Vector3.one;
+            var inversePosition = new GameObject("InversePosition");
+            inversePosition.transform.SetParent(inverseRotation.transform, false);
+            inversePosition.transform.localPosition = -avatarBreast.localPosition;
+            inversePosition.transform.localRotation = Quaternion.identity;
+            inversePosition.transform.localScale = Vector3.one;
 
-            var s = avatarBreast.GetComponent<ScaleConstraint>();
-            if (s == null) s = avatarBreast.gameObject.AddComponent<ScaleConstraint>();
-            s.AddSource(new ConstraintSource { sourceTransform = targetBreast, weight = 1 });
-            s.scaleOffset = new Vector3(avatarBreast.lossyScale.x / targetBreast.lossyScale.x, avatarBreast.lossyScale.y / targetBreast.lossyScale.y, avatarBreast.lossyScale.z / targetBreast.lossyScale.z);
-            s.constraintActive = true;
+            /*
+            var bp = avatarBreast.gameObject.AddComponent<ModularAvatarBoneProxy>();
+            bp.target = inverseRotation.transform;
+            bp.attachmentMode = BoneProxyAttachmentMode.AsChildKeepWorldPose;
+            */
+            
+            var replaceTarget = new GameObject(avatarBreast.name);
+            replaceTarget.transform.SetParent(inversePosition.transform, false);
+            replaceTarget.transform.localPosition = avatarBreast.localPosition;
+            replaceTarget.transform.localRotation = avatarBreast.localRotation;
+            replaceTarget.transform.localScale = avatarBreast.localScale;
+
+            var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
+            replace.targetObject.Set(replaceTarget);
 
             var avatarPb = avatarBreast.GetComponent<VRCPhysBone>();
             if (avatarPb != null)
