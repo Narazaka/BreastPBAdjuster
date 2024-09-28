@@ -7,6 +7,7 @@ using System;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Animations;
+using nadena.dev.modular_avatar.core;
 #endif
 
 namespace Narazaka.VRChat.BreastPBAdjuster
@@ -216,15 +217,19 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 enum Bone
                 {
+                    Breast_L_parent,
                     Breast_L_base,
                     Breast_L,
                     Breast_L_end,
+                    Breast_R_parent,
                     Breast_R_base,
                     Breast_R,
                     Breast_R_end,
                 }
 
                 Dictionary<Bone, Transform> Bones = new Dictionary<Bone, Transform>();
+                ModularAvatarBoneProxy _Breast_L_BoneProxy;
+                ModularAvatarBoneProxy _Breast_R_BoneProxy;
                 Transform Parent;
 
                 public BoneCache(Transform parent)
@@ -234,17 +239,35 @@ namespace Narazaka.VRChat.BreastPBAdjuster
 
                 public bool Valid { get => Parent != null; }
 
-                public Transform Breast_L_base { get => Bones.TryGetValue(Bone.Breast_L_base, out var value) && value != null ? value : Parent.Find("Breast_L_base"); }
-                public Transform Breast_L { get => Bones.TryGetValue(Bone.Breast_L, out var value) && value != null ? value : Parent.Find("Breast_L_base/Breast_L"); }
-                public Transform Breast_L_end { get => Bones.TryGetValue(Bone.Breast_L_end, out var value) && value != null ? value : Parent.Find("Breast_L_base/Breast_L/Breast_L_end"); }
+                public ModularAvatarBoneProxy Breast_L_BoneProxy { get => _Breast_L_BoneProxy == null ? (_Breast_L_BoneProxy = Breast_L_parent.GetComponent<ModularAvatarBoneProxy>()) : _Breast_L_BoneProxy; }
+                public Transform Breast_L_parent { get => Bones.TryGetValue(Bone.Breast_L_parent, out var value) && value != null ? value : Parent.Find("Breast_L_parent"); }
+                public Transform Breast_L_base { get => Bones.TryGetValue(Bone.Breast_L_base, out var value) && value != null ? value : Parent.Find("Breast_L_parent/Breast_L_base"); }
+                public Transform Breast_L { get => Bones.TryGetValue(Bone.Breast_L, out var value) && value != null ? value : Parent.Find("Breast_L_parent/Breast_L_base/Breast_L"); }
+                public Transform Breast_L_end { get => Bones.TryGetValue(Bone.Breast_L_end, out var value) && value != null ? value : Parent.Find("Breast_L_parent/Breast_L_base/Breast_L/Breast_L_end"); }
 
-                public Transform Breast_R_base { get => Bones.TryGetValue(Bone.Breast_R_base, out var value) && value != null ? value : Parent.Find("Breast_R_base"); }
-                public Transform Breast_R { get => Bones.TryGetValue(Bone.Breast_R, out var value) && value != null ? value : Parent.Find("Breast_R_base/Breast_R"); }
-                public Transform Breast_R_end { get => Bones.TryGetValue(Bone.Breast_R_end, out var value) && value != null ? value : Parent.Find("Breast_R_base/Breast_R/Breast_R_end"); }
+                public ModularAvatarBoneProxy Breast_R_BoneProxy { get => _Breast_R_BoneProxy == null ? (_Breast_R_BoneProxy = Breast_R_parent.GetComponent<ModularAvatarBoneProxy>()) : _Breast_R_BoneProxy; }
+                public Transform Breast_R_parent { get => Bones.TryGetValue(Bone.Breast_R_parent, out var value) && value != null ? value : Parent.Find("Breast_R_parent"); }
+                public Transform Breast_R_base { get => Bones.TryGetValue(Bone.Breast_R_base, out var value) && value != null ? value : Parent.Find("Breast_R_parent/Breast_R_base"); }
+                public Transform Breast_R { get => Bones.TryGetValue(Bone.Breast_R, out var value) && value != null ? value : Parent.Find("Breast_R_parent/Breast_R_base/Breast_R"); }
+                public Transform Breast_R_end { get => Bones.TryGetValue(Bone.Breast_R_end, out var value) && value != null ? value : Parent.Find("Breast_R_parent/Breast_R_base/Breast_R/Breast_R_end"); }
                 public BoneSet L { get => _L == null || !_L.Valid ? new BoneSet(Breast_L_base, Breast_L, Breast_L_end) : _L; }
                 BoneSet _L;
                 public BoneSet R { get => _R == null || !_R.Valid ? new BoneSet(Breast_R_base, Breast_R, Breast_R_end) : _R; }
                 BoneSet _R;
+
+                public void SetBoneProxyL(Transform target)
+                {
+                    if (Breast_L_BoneProxy.target == target) return;
+                    Undo.RecordObject(Breast_L_BoneProxy, "Change BoneProxy L");
+                    Breast_L_BoneProxy.target = target;
+                }
+
+                public void SetBoneProxyR(Transform target)
+                {
+                    if (Breast_R_BoneProxy.target == target) return;
+                    Undo.RecordObject(Breast_R_BoneProxy, "Change BoneProxy R");
+                    Breast_R_BoneProxy.target = target;
+                }
             }
 
             BoneCache Bones { get => _Bones == null || !_Bones.Valid ? (_Bones = new BoneCache(BreastPBAdjuster.transform)) : _Bones; }
@@ -424,6 +447,11 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 if (BreastPBAdjuster.BreastL != null)
                 {
+                    var parent = BreastPBAdjuster.BreastL.parent;
+                    Bones.SetBoneProxyL(parent);
+                    Bones.Breast_L_parent.position = parent.position;
+                    Bones.Breast_L_parent.rotation = parent.rotation;
+                    Bones.Breast_L_parent.localScale = parent.localScale;
                     Bones.Breast_L_base.localPosition = BreastPBAdjuster.BreastL.localPosition;
                     Bones.Breast_L_base.localScale = BreastPBAdjuster.BreastL.localScale;
                     Bones.Breast_L_base.localRotation = BreastPBAdjuster.BreastL.localRotation;
@@ -435,6 +463,11 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 }
                 if (BreastPBAdjuster.BreastR != null)
                 {
+                    var parent = BreastPBAdjuster.BreastR.parent;
+                    Bones.SetBoneProxyR(parent);
+                    Bones.Breast_R_parent.position = parent.position;
+                    Bones.Breast_R_parent.rotation = parent.rotation;
+                    Bones.Breast_R_parent.localScale = parent.localScale;
                     Bones.Breast_R_base.localPosition = BreastPBAdjuster.BreastR.localPosition;
                     Bones.Breast_R_base.localScale = BreastPBAdjuster.BreastR.localScale;
                     Bones.Breast_R_base.localRotation = BreastPBAdjuster.BreastR.localRotation;

@@ -37,8 +37,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
                 breastPBAdjuster.transform.SetParent(chest, true);
                 */
 
-                ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
-                ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
+                ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
+                ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
                 Object.DestroyImmediate(breastPBAdjuster);
             });
         }
