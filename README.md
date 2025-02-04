@@ -20,6 +20,11 @@ PBとかはprefabにあるやつはてきとうなのでアバターからパラ
 
 ## 更新履歴
 
+- 0.5.0-beta.0
+  - VRCConstraintで追従させるオプション（UseConstraint）を追加
+  - 折り返し式ボーン対応（UseSecondBone）を追加
+  - 複数配置に対応（全てがUseConstraint=trueである必要があります）
+  - 非互換が起きうる変更: UseSecondBone対応のためにIgnore Transform指定が増えています。2番目以降に指定がある場合は修正が必要です。
 - 0.4.0でparentがChestでない場合に対応（位置などが非互換です 0.3.x系でやってた人は直す必要があるかも知れません）
 - 0.3.0でConstraintを使わない方式に変更（Quest対応のため）
 - 0.2.0でボーンの回転互換性が切れてるので0.1.x系でやってた人は直して下さい

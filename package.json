@@ -1,6 +1,6 @@
 {
   "name": "net.narazaka.vrchat.breast-pb-adjuster",
-  "version": "0.4.0",
+  "version": "0.5.0-beta.0",
   "displayName": "Breast PB Adjuster",
   "description": "胸のPBをあわせるツール（作りかけなので割とバグってる可能性あり）",
   "author": {
@@ -11,6 +11,7 @@
   "type": "tool",
   "url" : "https://github.com/Narazaka/BreastPBAdjuster.git",
   "vpmDependencies": {
-    "nadena.dev.modular-avatar": ">=1.8.0"
+    "nadena.dev.modular-avatar": ">=1.8.0",
+    "com.vrchat.avatars": ">=3.7.0"
   }
 }
