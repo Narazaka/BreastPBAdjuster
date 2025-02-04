@@ -43,7 +43,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
             });
         }
 
-        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
+        GameObject MakeReplaceTarget(Transform avatarBreast, Transform targetBreast)
         {
             var inverseScale = new GameObject("InverseScale");
             inverseScale.transform.SetParent(avatarBreast, false);
@@ -61,19 +61,17 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
             inversePosition.transform.localPosition = -avatarBreast.localPosition;
             inversePosition.transform.localRotation = Quaternion.identity;
             inversePosition.transform.localScale = Vector3.one;
-
-            /*
-            var bp = avatarBreast.gameObject.AddComponent<ModularAvatarBoneProxy>();
-            bp.target = inverseRotation.transform;
-            bp.attachmentMode = BoneProxyAttachmentMode.AsChildKeepWorldPose;
-            */
-            
             var replaceTarget = new GameObject(avatarBreast.name);
             replaceTarget.transform.SetParent(inversePosition.transform, false);
             replaceTarget.transform.localPosition = avatarBreast.localPosition;
             replaceTarget.transform.localRotation = avatarBreast.localRotation;
             replaceTarget.transform.localScale = avatarBreast.localScale;
+            return replaceTarget;
+        }
 
+        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
+        {
+            var replaceTarget = MakeReplaceTarget(avatarBreast, targetBreast);
             var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
             replace.targetObject.Set(replaceTarget);
 
