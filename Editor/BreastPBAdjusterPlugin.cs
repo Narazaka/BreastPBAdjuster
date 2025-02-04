@@ -43,6 +43,28 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
             });
         }
 
+        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
+        {
+            var replaceTarget = MakeReplaceTarget(avatarBreast, targetBreast);
+            var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
+            replace.targetObject.Set(replaceTarget);
+
+            var avatarPb = avatarBreast.GetComponent<VRCPhysBone>();
+            if (avatarPb != null)
+            {
+                pb.colliders = pb.colliders.Where(c => c != null).Union(avatarPb.colliders).ToList();
+                Object.DestroyImmediate(avatarPb);
+            }
+
+            var clip = MakeAnimation(breastPBAdjuster.SquishScale);
+            var controller = MakeAnimator(pb.parameter, clip);
+            var mergeAnimator = targetBreast.gameObject.AddComponent<ModularAvatarMergeAnimator>();
+            mergeAnimator.animator = controller;
+            mergeAnimator.layerType = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor.AnimLayerType.FX;
+            mergeAnimator.pathMode = MergeAnimatorPathMode.Relative;
+            mergeAnimator.matchAvatarWriteDefaults = true;
+        }
+
         GameObject MakeReplaceTarget(Transform avatarBreast, Transform targetBreast)
         {
             var inverseScale = new GameObject("InverseScale");
@@ -67,28 +89,6 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
             replaceTarget.transform.localRotation = avatarBreast.localRotation;
             replaceTarget.transform.localScale = avatarBreast.localScale;
             return replaceTarget;
-        }
-
-        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
-        {
-            var replaceTarget = MakeReplaceTarget(avatarBreast, targetBreast);
-            var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
-            replace.targetObject.Set(replaceTarget);
-
-            var avatarPb = avatarBreast.GetComponent<VRCPhysBone>();
-            if (avatarPb != null)
-            {
-                pb.colliders = pb.colliders.Where(c => c != null).Union(avatarPb.colliders).ToList();
-                Object.DestroyImmediate(avatarPb);
-            }
-
-            var clip = MakeAnimation(breastPBAdjuster.SquishScale);
-            var controller = MakeAnimator(pb.parameter, clip);
-            var mergeAnimator = targetBreast.gameObject.AddComponent<ModularAvatarMergeAnimator>();
-            mergeAnimator.animator = controller;
-            mergeAnimator.layerType = VRC.SDK3.Avatars.Components.VRCAvatarDescriptor.AnimLayerType.FX;
-            mergeAnimator.pathMode = MergeAnimatorPathMode.Relative;
-            mergeAnimator.matchAvatarWriteDefaults = true;
         }
 
         AnimatorController MakeAnimator(string parameterPrefix, AnimationClip clip)
