@@ -46,26 +46,45 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
 
                 foreach (var breastPBAdjuster in breastPBAdjusters)
                 {
-                    ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastL, breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L/Parent"), breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L").GetComponent<VRCPhysBone>());
-                    ProcessBreast(breastPBAdjuster, breastPBAdjuster.BreastR, breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R/Parent"), breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R").GetComponent<VRCPhysBone>());
+                    ProcessBreast(
+                        breastPBAdjuster,
+                        breastPBAdjuster.BreastL,
+                        breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L/Parent"),
+                        breastPBAdjuster.BreastLEnd,
+                        breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L/Breast_L_end"),
+                        breastPBAdjuster.transform.Find("Breast_L_parent/Breast_L_base/Breast_L").GetComponent<VRCPhysBone>()
+                        );
+                    ProcessBreast(
+                        breastPBAdjuster,
+                        breastPBAdjuster.BreastR,
+                        breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R/Parent"),
+                        breastPBAdjuster.BreastREnd,
+                        breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R/Breast_R_end"),
+                        breastPBAdjuster.transform.Find("Breast_R_parent/Breast_R_base/Breast_R").GetComponent<VRCPhysBone>()
+                        );
                     Object.DestroyImmediate(breastPBAdjuster);
                 }
             });
         }
 
-        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
+        void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, Transform avatarSecondBreast, Transform targetSecondBreastParent, VRCPhysBone pb)
         {
             var replaceTarget = MakeReplaceTarget(avatarBreast, targetBreast);
+            SetAvatarToTarget(avatarBreast, replaceTarget, breastPBAdjuster.UseConstraint);
 
-            if (breastPBAdjuster.UseConstraint)
+            if (breastPBAdjuster.UseSecondBone)
             {
-                AddRotationConstraint(avatarBreast, replaceTarget);
-                AddScaleConstraint(avatarBreast, replaceTarget);
-            }
-            else
-            {
-                var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
-                replace.targetObject.Set(replaceTarget);
+                var targetSecondBreast = targetSecondBreastParent.Find("Parent");
+                if (targetSecondBreast == null)
+                {
+                    targetSecondBreast = new GameObject("Parent").transform;
+                    targetSecondBreast.SetParent(targetSecondBreastParent, false);
+                    targetSecondBreast.localPosition = Vector3.zero;
+                    targetSecondBreast.localRotation = Quaternion.identity;
+                    targetSecondBreast.localScale = Vector3.one;
+                }
+                var secondReplaceTarget = MakeReplaceTarget(avatarSecondBreast, targetSecondBreast);
+                SetAvatarToTarget(avatarSecondBreast, secondReplaceTarget, breastPBAdjuster.UseConstraint);
             }
 
             var avatarPb = avatarBreast.GetComponent<VRCPhysBone>();
@@ -110,9 +129,27 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
             return replaceTarget;
         }
 
+        void SetAvatarToTarget(Transform avatarBreast, GameObject replaceTarget, bool useConstraint)
+        {
+            if (useConstraint)
+            {
+                AddRotationConstraint(avatarBreast, replaceTarget);
+                AddScaleConstraint(avatarBreast, replaceTarget);
+            }
+            else
+            {
+                var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
+                replace.targetObject.Set(replaceTarget);
+            }
+        }
+
         void AddRotationConstraint(Transform avatarBreast, GameObject replaceTarget)
         {
-            var r = avatarBreast.gameObject.AddComponent<VRCRotationConstraint>();
+            var r = avatarBreast.gameObject.GetComponent<VRCRotationConstraint>();
+            if (r == null)
+            {
+                r = avatarBreast.gameObject.AddComponent<VRCRotationConstraint>();
+            }
             r.AffectsRotationX = true;
             r.AffectsRotationY = true;
             r.AffectsRotationZ = true;
@@ -131,7 +168,11 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
 
         void AddScaleConstraint(Transform avatarBreast, GameObject replaceTarget)
         {
-            var s = avatarBreast.gameObject.AddComponent<VRCScaleConstraint>();
+            var s = avatarBreast.gameObject.GetComponent<VRCScaleConstraint>();
+            if (s == null)
+            {
+                s = avatarBreast.gameObject.AddComponent<VRCScaleConstraint>();
+            }
             s.AffectsScaleX = true;
             s.AffectsScaleX = true;
             s.AffectsScaleX = true;

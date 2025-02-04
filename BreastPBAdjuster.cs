@@ -22,6 +22,12 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         [SerializeField]
         public Transform BreastR;
         [SerializeField]
+        public bool UseSecondBone;
+        [SerializeField]
+        public Transform BreastLEnd;
+        [SerializeField]
+        public Transform BreastREnd;
+        [SerializeField]
         float Squish = 0.1f;
         [SerializeField]
         public Vector3 SquishScale = Vector3.one;
@@ -195,6 +201,14 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 End.position = endPosition;
             }
 
+            public void SetPBEndPointPosition(Vector3 position)
+            {
+#if UNITY_EDITOR
+                Undo.RecordObject(PB, "Change PB EndPoint Position");
+#endif
+                PB.endpointPosition = position;
+            }
+
 #if UNITY_EDITOR
             public void DrawGizmos()
             {
@@ -316,6 +330,9 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 var useConstraint = serializedObject.FindProperty(nameof(UseConstraint));
                 var breastL = serializedObject.FindProperty(nameof(BreastL));
                 var breastR = serializedObject.FindProperty(nameof(BreastR));
+                var useSecondBone = serializedObject.FindProperty(nameof(UseSecondBone));
+                var breastLEnd = serializedObject.FindProperty(nameof(BreastLEnd));
+                var breastREnd = serializedObject.FindProperty(nameof(BreastREnd));
                 var keyFrames = serializedObject.FindProperty(nameof(KeyFrames));
                 var squish = serializedObject.FindProperty(nameof(Squish));
                 var squishScale = serializedObject.FindProperty(nameof(SquishScale));
@@ -326,6 +343,17 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 EditorGUILayout.PropertyField(useConstraint);
                 EditorGUILayout.PropertyField(breastL);
                 EditorGUILayout.PropertyField(breastR);
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.PropertyField(useSecondBone);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    SetPBs(useSecondBone.boolValue);
+                }
+                if (useSecondBone.boolValue)
+                {
+                    EditorGUILayout.PropertyField(breastLEnd);
+                    EditorGUILayout.PropertyField(breastREnd);
+                }
                 EditorGUILayout.PropertyField(squish);
                 Bones.L.PB.maxSquish = squish.floatValue;
                 Bones.R.PB.maxSquish = squish.floatValue;
@@ -385,7 +413,9 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 // KeyFramesList.DoLayoutList();
 
                 var nowL = breastL.objectReferenceValue;
+                var nowLEnd = breastLEnd.objectReferenceValue;
                 var nowR = breastR.objectReferenceValue;
+                var nowREnd = breastREnd.objectReferenceValue;
 
                 if (prevL != nowL)
                 {
@@ -395,6 +425,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 {
                     TransformMemo.Set(GetDefaultKeyFrameProperty().FindPropertyRelative(nameof(BreastR)), breastR.objectReferenceValue as Transform);
                 }
+
                 serializedObject.ApplyModifiedProperties();
             }
 
@@ -465,6 +496,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     Bones.Breast_L_end.localRotation = Breast_L_second ? Breast_L_second.localRotation : Quaternion.identity;
                     ManipulatePosition(Bones.L, Bones.R);
                     ManipulatePB(Bones.L, Bones.R);
+                    ManipulateSecondBoneEndPosition(Bones.L, Bones.R);
                     Bones.L.DrawGizmos();
                 }
                 if (BreastPBAdjuster.BreastR != null)
@@ -481,6 +513,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     Bones.Breast_R_end.localRotation = Breast_R_second ? Breast_R_second.localRotation : Quaternion.identity;
                     ManipulatePosition(Bones.R, Bones.L);
                     ManipulatePB(Bones.R, Bones.L);
+                    ManipulateSecondBoneEndPosition(Bones.R, Bones.L);
                     Bones.R.DrawGizmos();
                 }
             }
@@ -531,20 +564,62 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                     var radiusStart = Handles.RadiusHandle(Quaternion.identity, main.Start.position, main.PB.CalcRadius(0f) * avgScale) / avgScale;
                     if (check.changed)
                     {
-                        SetPB(radiusStart, radiusEnd);
+                        SetPB(radiusStart, radiusEnd, BreastPBAdjuster.UseSecondBone);
                     }
                 }
             }
 
-            void SetPB(float radiusStart, float radiusEnd)
+            void SetPBs(bool useSecondBone)
+            {
+                SetPB(Bones.L.PB.CalcRadius(0f), Bones.L.PB.radius, useSecondBone);
+            }
+
+            void SetPB(float radiusStart, float radiusEnd, bool useSecondBone)
             {
                 var rate = radiusStart / radiusEnd;
-                var curve = new AnimationCurve(new Keyframe { time = 0f, value = rate }, new Keyframe { time = 1, value = 1 });
+                var start = new Keyframe { time = 0f, value = rate };
+                var end = new Keyframe { time = useSecondBone ? 0.5f : 1, value = 1 };
+                var end2 = new Keyframe { time = 1, value = 0 };
+                var curve = useSecondBone ? new AnimationCurve(start, end, end2): new AnimationCurve(start, end);
                 Undo.RecordObjects(new UnityEngine.Object[] { Bones.L.PB, Bones.R.PB }, $"Change PB Radius to {radiusStart} .. {radiusEnd}");
                 Bones.L.PB.radius = radiusEnd;
                 Bones.L.PB.radiusCurve = curve;
                 Bones.R.PB.radius = radiusEnd;
                 Bones.R.PB.radiusCurve = curve;
+                EditorUtility.SetDirty(Bones.L.PB);
+                EditorUtility.SetDirty(Bones.R.PB);
+            }
+
+            void ManipulateSecondBoneEndPosition(BoneSet main, BoneSet sub)
+            {
+                if (BreastPBAdjuster.UseSecondBone)
+                {
+                    if (main.PB.endpointPosition == Vector3.zero)
+                    {
+                        main.SetPBEndPointPosition(Quaternion.Inverse(main.End.rotation) * (main.Start.position - main.End.position) / 2);
+                    }
+                    if (sub.PB.endpointPosition == Vector3.zero)
+                    {
+                        sub.SetPBEndPointPosition(Quaternion.Inverse(sub.End.rotation) * (sub.Start.position - sub.End.position) / 2);
+                    }
+                    using (var check = new EditorGUI.ChangeCheckScope())
+                    {
+                        var endPosition = Handles.PositionHandle(main.End.position + main.End.rotation * main.PB.endpointPosition, Quaternion.identity);
+                        Handles.DrawLine(main.End.position, endPosition);
+                        if (check.changed)
+                        {
+                            main.SetPBEndPointPosition(Quaternion.Inverse(main.End.rotation) * (endPosition - main.End.position));
+                            var center = BreastPBAdjuster.transform.position;
+                            endPosition = Vector3.Reflect(endPosition - center, Vector3.left) + center;
+                            sub.SetPBEndPointPosition(Quaternion.Inverse(sub.End.rotation) * (endPosition - sub.End.position));
+                        }
+                    }
+                }
+                else
+                {
+                    main.SetPBEndPointPosition(Vector3.zero);
+                    sub.SetPBEndPointPosition(Vector3.zero);
+                }
             }
 
             void ManipulateSquish(BoneSet main)
