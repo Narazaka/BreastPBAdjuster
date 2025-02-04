@@ -8,6 +8,7 @@ using UnityEditor.Animations;
 using VRC.SDK3.Dynamics.PhysBone.Components;
 using System.Linq;
 using nadena.dev.modular_avatar.core;
+using VRC.SDK3.Dynamics.Constraint.Components;
 
 [assembly: ExportsPlugin(typeof(Narazaka.VRChat.BreastPBAdjuster.Editor.BreastPBAdjusterPlugin))]
 
@@ -46,8 +47,50 @@ namespace Narazaka.VRChat.BreastPBAdjuster.Editor
         void ProcessBreast(BreastPBAdjuster breastPBAdjuster, Transform avatarBreast, Transform targetBreast, VRCPhysBone pb)
         {
             var replaceTarget = MakeReplaceTarget(avatarBreast, targetBreast);
-            var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
-            replace.targetObject.Set(replaceTarget);
+
+            if (breastPBAdjuster.UseConstraint)
+            {
+                var r = avatarBreast.gameObject.AddComponent<VRCRotationConstraint>();
+                r.AffectsRotationX = true;
+                r.AffectsRotationY = true;
+                r.AffectsRotationZ = true;
+                r.Locked = true;
+                r.IsActive = true;
+                r.GlobalWeight = 1;
+                r.Sources = new VRC.Dynamics.VRCConstraintSourceKeyableList
+                {
+                    new VRC.Dynamics.VRCConstraintSource
+                    {
+                        SourceTransform = replaceTarget.transform,
+                        ParentPositionOffset = Vector3.zero,
+                        ParentRotationOffset = Vector3.zero,
+                        Weight = 1f,
+                    },
+                };
+
+                var s = avatarBreast.gameObject.AddComponent<VRCScaleConstraint>();
+                s.AffectsScaleX = true;
+                s.AffectsScaleX = true;
+                s.AffectsScaleX = true;
+                s.Locked = true;
+                s.IsActive = true;
+                s.GlobalWeight = 1;
+                s.Sources = new VRC.Dynamics.VRCConstraintSourceKeyableList
+                {
+                    new VRC.Dynamics.VRCConstraintSource
+                    {
+                        SourceTransform = replaceTarget.transform,
+                        ParentPositionOffset = Vector3.zero,
+                        ParentRotationOffset = Vector3.zero,
+                        Weight = 1f,
+                    },
+                };
+            }
+            else
+            {
+                var replace = avatarBreast.gameObject.AddComponent<ModularAvatarReplaceObject>();
+                replace.targetObject.Set(replaceTarget);
+            }
 
             var avatarPb = avatarBreast.GetComponent<VRCPhysBone>();
             if (avatarPb != null)

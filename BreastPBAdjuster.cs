@@ -16,6 +16,8 @@ namespace Narazaka.VRChat.BreastPBAdjuster
     public class BreastPBAdjuster : MonoBehaviour, IEditorOnly
     {
         [SerializeField]
+        public bool UseConstraint;
+        [SerializeField]
         public Transform BreastL;
         [SerializeField]
         public Transform BreastR;
@@ -25,7 +27,9 @@ namespace Narazaka.VRChat.BreastPBAdjuster
         public Vector3 SquishScale = Vector3.one;
         [SerializeField]
         List<BreastKeyFrame> KeyFrames = new List<BreastKeyFrame>();
-        BreastKeyFrame DefaultKeyFrame { get
+        BreastKeyFrame DefaultKeyFrame
+        {
+            get
             {
                 var kf = KeyFrames.FirstOrDefault(f => f.IsDefault);
                 if (kf != null)
@@ -301,7 +305,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             }
             int CurrentKeyFrameIndex
             {
-                get =>(KeyFramesList == null || KeyFramesList.index < 0 || KeyFramesList.index >= BreastPBAdjuster.KeyFrames.Count) ? BreastPBAdjuster.DefaultKeyFrameIndex : KeyFramesList.index;
+                get => (KeyFramesList == null || KeyFramesList.index < 0 || KeyFramesList.index >= BreastPBAdjuster.KeyFrames.Count) ? BreastPBAdjuster.DefaultKeyFrameIndex : KeyFramesList.index;
             }
             int PrevIndex = -1;
 
@@ -309,6 +313,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
             {
                 serializedObject.Update();
 
+                var useConstraint = serializedObject.FindProperty(nameof(UseConstraint));
                 var breastL = serializedObject.FindProperty(nameof(BreastL));
                 var breastR = serializedObject.FindProperty(nameof(BreastR));
                 var keyFrames = serializedObject.FindProperty(nameof(KeyFrames));
@@ -318,6 +323,7 @@ namespace Narazaka.VRChat.BreastPBAdjuster
                 var prevL = breastL.objectReferenceValue;
                 var prevR = breastR.objectReferenceValue;
 
+                EditorGUILayout.PropertyField(useConstraint);
                 EditorGUILayout.PropertyField(breastL);
                 EditorGUILayout.PropertyField(breastR);
                 EditorGUILayout.PropertyField(squish);
